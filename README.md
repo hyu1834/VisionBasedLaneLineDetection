@@ -15,9 +15,9 @@ This project is part of the Project 1 in the Nanodegree
   N/A
 
 ### Executable
-  python3 src/lanelinedetection.py [Options] <input_file>
-  python3 src/lanelinedetection.py -i ../test_images/solidWhiteRight.jpg
-  python3 src/lanelinedetection.py -v ../test_video/solidWhiteRight.mp4
+  - python3 src/lanelinedetection.py [Options] <input_file>
+  - python3 src/lanelinedetection.py -i ../test_images/solidWhiteRight.jpg
+  - python3 src/lanelinedetection.py -v ../test_video/solidWhiteRight.mp4
   
   ##### [Options]:
 	-v, --video
