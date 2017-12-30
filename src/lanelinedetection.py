@@ -127,8 +127,8 @@ def frame_lane_line_detection(frame):
 						# ("Gray Frame", gray_frame), 
 						# ("Gaussian", gaussian_frame),
 						("Canny Edges", canny_edges_frame),
-						("Region", region_of_interest_frame),
-						("Hough", hough_lines_frame),
+						# ("Region", region_of_interest_frame),
+						# ("Hough", hough_lines_frame),
 						("Lane Line", lane_line_frame)
 						], 0)
 
@@ -156,7 +156,6 @@ def process_image(image_path):
 		print("Image Resolution: %sx%s"%(image.shape[1], image.shape[0]))
 		frame_lane_line_detection(image)
 
-	image.release()
 	cv2.destroyAllWindows()
 
 def main():
