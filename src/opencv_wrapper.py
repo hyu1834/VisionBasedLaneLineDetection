@@ -107,16 +107,23 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
 
 ################################################################################
 
-def hough_transformation(frame, mask, rho, theta, threshold, min_line_len, max_line_gap):
+def hough_transformation(mask, rho, theta, threshold, min_line_len, max_line_gap):
 	# Hough detection
 	lines = cv2.HoughLinesP(mask, rho, theta, threshold, np.array([]),
 							minLineLength=min_line_len, maxLineGap=max_line_gap)
-	# Draw line to the frame
-	draw_lines(frame, lines)
-	return frame
+	
+	return lines
 
-def draw_lines(img, lines, red = 255, green = 0, blue = 0):
+
+def draw_lines(img, lines, red = 255, green = 0, blue = 0, width = 10):
 	for line in lines:
-		print(line)
 		for x1, y1, x2, y2 in line:
-			cv2.line(img, (x1, y1), (x2, y2), (blue, green, red), 10)
+			cv.line(img, (x1, y1), (x2, y2), (blue, green, red), width)
+# 	draw_lines(frame, lines)
+# 	return frame
+
+# def draw_lines(img, lines, red = 255, green = 0, blue = 0):
+# 	for line in lines:
+# 		print(line)
+# 		for x1, y1, x2, y2 in line:
+# 			cv2.line(img, (x1, y1), (x2, y2), (blue, green, red), 10)

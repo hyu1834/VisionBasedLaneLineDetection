@@ -112,10 +112,10 @@ def frame_lane_line_detection(frame):
 	region_of_interest_frame = opencv.region_of_interest(canny_edges_frame, vertices)
 
 	# Apply Hough Transformation
-	hough_lines_frame = opencv.hough_transformation(np.copy(frame)*0, 
-													region_of_interest_frame, 
-													rho, theta, threshold, 
-													min_line_length, max_line_gap)
+	hough_lines = opencv.hough_transformation(region_of_interest_frame, 
+											  rho, theta, threshold, 
+											  min_line_length, max_line_gap)
+
 	# hough_lines_frame = opencv.hough_lines(region_of_interest_frame, rho, theta, threshold, min_line_length, max_line_gap)
 	# hough_lines_frame_bgr = cv2.cvtColor(hough_lines_frame, cv2.COLOR_GRAY2BGR)
 	
