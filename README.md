@@ -9,7 +9,8 @@ This project is part of the Project 1 in the Nanodegree
 - Python 3
 - OpenCV 3.3.1+
 - Matplotlib 2.1.1+
-- NumPy 1.13.3
+- NumPy 1.13.3+
+- Tkinter 3.5.1+
 
 ### Build
   N/A
