@@ -4,7 +4,7 @@
 # Library Required:															   #
 # 	OpenCV Version: 3.3														   #
 # 	Matplotlib:																   #
-#	Numpy:																	   #
+#	Numpy: 1.13.3															   #
 ################################################################################
 
 # Standard Modules
@@ -13,14 +13,15 @@ from enum import Enum
 
 # 3rd Party Modules
 
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+# import matplotlib.pyplot as plt
+# import matplotlib.image as mpimg
 import numpy as np
 import cv2
 
 # Local Modules
-import opencv_wrapper as opencv
-import matplotlib_wrapper as matplot
+import opencv_utils as opencv
+import matplotlib_utils as matplot
+import math_utils as math
 
 class Input_Type(Enum):
 	IMAGE = 0,
@@ -69,6 +70,44 @@ def options_parser():
 
 	return options
 
+def compute_full_lane_line(hough_lines, img_height):
+	# First determine the slope of each line segment
+	# and seperate line segment into left and right laneline
+	left_lane_line_segments = []
+	right_lane_line_segments = []
+	left_lane_line_points = []
+	right_lane_line_points = []
+
+	for line in hough_lines:
+		for x1, y1, x2, y2 in line:
+			m = math.slope(x1, y1, x2, y2)
+			b = y1 - m * x1
+			# if(abs(m) > 0.4):
+			if(m < 0):
+				# left_lane_line_segments.append((x1, y1, x2, y2))
+				left_lane_line_points.append((x1, y1))
+				left_lane_line_points.append((x2, y2))
+			else:
+				# right_lane_line_segments.append((x1, y1, x2, y2))
+				right_lane_line_points.append((x1, y1))
+				right_lane_line_points.append((x2, y2))
+					
+	if(len(left_lane_line_points) > 0 and len(right_lane_line_points) > 0):
+		# Compute least square fit line
+		m_left, b_left = math.least_square_regession(left_lane_line_points)
+		m_right, b_right = math.least_square_regession(right_lane_line_points)
+
+		# Compute left and right least square line intersection
+		intersect_x, intersect_y = math.line_intersection(m_left, b_left, m_right, b_right)
+		intersect_x = int(round(intersect_x))
+		intersect_y = int(round(intersect_y))
+
+		# return left_lane_line_points
+		return [(intersect_x, intersect_y, int(round((img_height - b_left) / m_left)), img_height),
+				(intersect_x, intersect_y, int(round((img_height - b_right) / m_right)), img_height)]
+
+	return []
+
 ################################################################################
 # This function perform land line detection on given frame 					   #
 # Detection pipeline 														   #
@@ -108,7 +147,7 @@ def frame_lane_line_detection(frame):
 	canny_edges_frame = opencv.canny(gaussian_frame, 60, 180)
 
 	# Extract the region of interest
-	vertices = np.array([[(50, frame_height), (470, 315), (490, 315), (frame_width - 50, frame_height)]], dtype = np.int32)
+	vertices = np.array([[(50, frame_height), (470, 310), (490, 310), (frame_width - 50, frame_height)]], dtype = np.int32)
 	region_of_interest_frame = opencv.region_of_interest(canny_edges_frame, vertices)
 
 	# Apply Hough Transformation
@@ -116,10 +155,11 @@ def frame_lane_line_detection(frame):
 											  rho, theta, threshold, 
 											  min_line_length, max_line_gap)
 
-	# hough_lines_frame = opencv.hough_lines(region_of_interest_frame, rho, theta, threshold, min_line_length, max_line_gap)
-	# hough_lines_frame_bgr = cv2.cvtColor(hough_lines_frame, cv2.COLOR_GRAY2BGR)
+	full_lane_lines = compute_full_lane_line(hough_lines, frame_height)
+	land_line_mask = opencv.draw_lines(np.copy(frame)*0, full_lane_lines)
+	# lane_line_mask = opencv.draw_polyline(np.copy(frame) * 0, full_lane_lines)
 	
-	lane_line_frame = opencv.weighted_img(frame, hough_lines_frame)
+	lane_line_frame = opencv.weighted_img(frame, land_line_mask)
 
 
 	# Here we will show the images for debugging purpose
@@ -127,7 +167,7 @@ def frame_lane_line_detection(frame):
 						# ("Gray Frame", gray_frame), 
 						# ("Gaussian", gaussian_frame),
 						("Canny Edges", canny_edges_frame),
-						# ("Region", region_of_interest_frame),
+						("Region", region_of_interest_frame),
 						# ("Hough", hough_lines_frame),
 						("Lane Line", lane_line_frame)
 						], 0)
